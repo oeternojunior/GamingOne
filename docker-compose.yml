@@ -1,0 +1,27 @@
+services:
+  gamingone.hilo.api:
+    container_name: gamingone.hilo.api
+    image: ${DOCKER_REGISTRY-}gamingonehiloapi
+    build:
+      context: .
+      dockerfile: src/GamingOne.HiLo.Api/Dockerfile
+    ports:
+     - "5000:5000"
+     - "5001:5001"
+    networks:
+      - gamingone-network  
+
+  gamingone.seq:
+    image: datalust/seq:latest
+    container_name: gamingone.seq
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - "5341:5341"
+      - "8081:80"
+    networks:
+      - gamingone-network
+
+networks:
+  gamingone-network:
+    driver: bridge
