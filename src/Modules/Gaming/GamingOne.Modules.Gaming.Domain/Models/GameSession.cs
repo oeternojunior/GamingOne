@@ -10,7 +10,7 @@ public sealed class GameSession : Entity
     private readonly List<PlayerGuess> _guesses = new List<PlayerGuess>();
     private readonly IRandomNumberGenerator _randomNumberGenerator;
 
-    private Guid? _currentTurnPlayerId;
+    private int _currentTurnIndex = -1;
 
     public int Min { get; private set; }
     public int Max { get; private set; }
@@ -78,14 +78,18 @@ public sealed class GameSession : Entity
 
         if (_players.Count > 1)
         {
-            if (_currentTurnPlayerId == player.Id)
+            // Get expected next player index
+            var expectedPlayerIndex = (_currentTurnIndex + 1) % _players.Count;
+            var expectedPlayer = _players[expectedPlayerIndex];
+
+            if (player.Id != expectedPlayer.Id)
             {
                 throw new InvalidOperationException(
-                    $"It's not {player.Name}'s turn to guess. " +
-                    "Wait for another player.");
+                    $"It's {expectedPlayer.Name}'s turn. " +
+                    $"{player.Name} cannot guess now.");
             }
 
-            _currentTurnPlayerId = player.Id;
+            _currentTurnIndex = expectedPlayerIndex;
         }
 
         var result = guess == MysteryNumber ? GuessResult.Correct :
